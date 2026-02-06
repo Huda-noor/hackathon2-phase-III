@@ -1,0 +1,112 @@
+openapi: 3.0.3
+info:
+  title: Messages API
+  description: Create and read messages within conversations
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8000/api
+    description: Development server
+
+security:
+  - BearerAuth: []
+
+paths:
+  /messages:
+    post:
+      summary: Create new message
+      description: Creates a message in a conversation (user or assistant role)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MessageCreate'
+      responses:
+        '201':
+          description: Message created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '400':
+          description: Invalid request data
+        '403':
+          description: User does not own the conversation
+
+  /conversations/{conversation_id}/messages:
+    get:
+      summary: List messages in conversation
+      description: Returns all messages in a conversation in chronological order
+      parameters:
+        - name: conversation_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: skip
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 100
+      responses:
+        '200':
+          description: List of messages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MessageResponse'
+        '403':
+          description: User does not own the conversation
+        '404':
+          description: Conversation not found
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    MessageCreate:
+      type: object
+      required:
+        - conversation_id
+        - role
+        - content
+      properties:
+        conversation_id:
+          type: integer
+          example: 1
+        role:
+          type: string
+          enum: [user, assistant]
+          example: "user"
+        content:
+          type: string
+          maxLength: 100000
+          example: "How do I implement user authentication in FastAPI?"
+
+    MessageResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        conversation_id:
+          type: integer
+        role:
+          type: string
+          enum: [user, assistant]
+        content:
+          type: string
+        created_at:
+          type: string
+          format: date-time
