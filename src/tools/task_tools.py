@@ -3,8 +3,8 @@ Task tools for the MCP Agent.
 These functions correspond to the API tools defined in the OpenAPI contract.
 """
 from typing import List, Optional
-from .task_models import Task, TaskCreate, TaskUpdate
-from . import task_service
+from ..services.task_models import Task, TaskCreate, TaskUpdate
+from ..services import task_service
 
 
 def add_task(title: str, description: Optional[str] = None) -> Task:
@@ -47,8 +47,9 @@ def update_task(task_id: int, title: Optional[str] = None, description: Optional
     Returns:
         Updated task or None if not found
     """
+    from ..services.task_service import update_task as service_update_task
     task_data = TaskUpdate(title=title, description=description)
-    return task_service.update_task(task_id, task_data)
+    return service_update_task(task_id, task_data)
 
 
 def complete_task(task_id: int) -> Optional[Task]:

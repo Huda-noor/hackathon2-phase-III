@@ -11,6 +11,13 @@ _tasks_db: Dict[int, Task] = {}
 _next_id = 1
 
 
+def reset_task_store():
+    """Reset the in-memory task store. Useful for testing."""
+    global _tasks_db, _next_id
+    _tasks_db.clear()
+    _next_id = 1
+
+
 def create_task(task_data: TaskCreate) -> Task:
     """Create a new task with auto-generated ID."""
     global _next_id
